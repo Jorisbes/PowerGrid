@@ -521,7 +521,13 @@ De retour à votre tableau de bord, cherchez à lancer un build de votre Pipelin
  
 ## Appropriation du projet
 
-Vous êtes désormais en charge du développement du projet PowerGrid, vous devez organiser votre groupe afin de remplir les différents objectifs définis lors de la spécification
+Vous êtes désormais en charge du développement du projet PowerGrid, vous devez organiser votre groupe afin de remplir les différents objectifs définis lors de la spécification.
+
+Pour commencer, chacun des membres du groupe peut se connecter à con environnement de travail en suivant les instructions décrites dans la [section correspondante](#reuse-wsl).
+
+Dans l'environnement VSCode, l'invite de commande située en bas de l'interface permettra d'entrer les commandes `git` pour la gestion des versions. Quand l'un des membres du groupe aura modifié le code du projet et souhaitera le valider, il créera une nouvelle validation (*commit*), et la poussera (*push*) vers le serveur github (*origin*). Alternativement, les boutons de l'interface de VSCode permettent de réaliser les mêmes opérations de manière plus conviviale.
+
+Il vous est recommandé de créer chacun une branche (`git branch`) à votre nom, sur laquelle vous réaliserez vos commits et que vous pourrez pousser vers le dépôt GitHub.
 
 <a name="projet-desc" />
 
