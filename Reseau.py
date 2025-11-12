@@ -34,18 +34,18 @@ class Reseau:
         self.strat = strat
 
     def valider_reseau(self) -> bool:
-        # TODO
+        # TODO #Un réseau n'est pas valide si chacun de ses noeuds n'est pas relié au noeud d'entrée
         return False
 
     def valider_distribution(self, t: Terrain) -> bool:
-        # TODO
+        # TODO #Une distribution n'est pas valide si chacun de client n'est pas relié au réseau
         return False
 
     def configurer(self, t: Terrain):
         self.noeud_entree, self.noeuds, self.arcs  = self.strat.configurer(t)
 
     def afficher(self) -> None:
-        # TODO
+        # TODO #Affiche la configuration du réseau dans le terminal
         pass
 
     def afficher_avec_terrain(self, t: Terrain) -> None:
