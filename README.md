@@ -34,7 +34,8 @@ La liste (non exhaustive) suivante comporte des éléments d'évaluation du proj
     4. [Création de clés SSH pour l'authentification avec GitHub](#ssh-dev)
     5. [Clonage du projet et configuration des identifiants](#clone)
     6. [Configuration de VSCode pour le développement Python dans WSL](#config-vs)
-    7. [Export de votre machine virtuelle pour réutilisation ultérieure](#export-wsl)
+    7. [Export de votre machine virtuelle](#export-wsl)
+    8. [Réutilisation d'une machine virtuelle](#reuse-wsl)
 3. [Mise en place du serveur CI](#jenkins)
     1. [Configuration d'un environnement WSL](#jenkins-wsl)
     2. [Autorisation de Jenkins dans GitHub](#jenkins-github)
@@ -103,15 +104,15 @@ Cette commande installe les composants de WSL, et vous permettra de réaliser le
 
 ### Configuration d'une VM WSL2
 
-Nous allons réaliser les manipulations de ce TP en utilisant le WSL2. Il s'agit d'une machine virtuelle linux intégrée au système Windows. Ouvrez une invite de commande Windows (PowerShell), puis tapez la commande suivante pour installer une distribution Debian pour votre future machine virtuelle :
+Nous allons réaliser les manipulations de ce TP en utilisant le WSL2. Il s'agit d'une machine virtuelle linux intégrée au système Windows. Ouvrez une invite de commande Windows (PowerShell), puis tapez la commande suivante pour installer une distribution Ubuntu pour votre future machine virtuelle :
 
 ```bash
-wsl --install Debian
+wsl --install Ubuntu
 ```
 Une fois la distribution installée, vous pouvez lancer une nouvelle machine virtuelle en exécutant la commande :
 
 ```bash
-wsl -d Debian
+wsl -d Ubuntu
 ```
 
 Vous êtes alors invité à choisir un nom d'utilisateur ainsi qu'un mot de passe. Choisissez des identifiants courts afin de pouvoir les taper à plusieurs reprises sans complications. Une fois l'installation terminée, vous devez être en mesure de taper des commandes linux dans la console. L'affichage du début de ligne de l'invite de commande doit refléter le changement d'environnement. Vous pouvez maintenant exécuter les commandes suivantes pour terminer la configuration de la machine virtuelle :
@@ -130,7 +131,7 @@ Ces commandes doivent mettre à jour la machine virtuelle, et installer Git et P
 
 ### Création de clés SSH pour l'authentification avec GitHub
 
-Votre invite de commande est maintenant située à l'intérieur d'une machine virtuelle configurée pour le développement Python. Vous pourrez bientôt télécharger le projet PowerGrid pour commencer à programmer. Cependant, l'utilisateur de la machine virtuelle ne possède pas encore les droits nécessaires pour pousser des modifications vers le dépôt sur GitHub. GitHub gère les droits de modification à partir de jeux de clés cryptographiques générés par un utilisateur pour garantir son identité. Linux dispose d'une commande permettant de générer une clé de chiffrement. Celle-ci vous permettra de confirmer votre identité au site GitHub. Exécutez tout d'abord la commande suivante, en acceptant le chemin par défaut pour les fichiers générés (tapez ENTRÉE), et en choisissant un mot de passe simple pour la clé SSH :
+Votre invite de commande est maintenant située à l'intérieur d'une machine virtuelle configurée pour le développement Python. Vous pourrez bientôt télécharger le projet PowerGrid pour commencer à programmer. Cependant, l'utilisateur de la machine virtuelle ne possède pas encore les droits nécessaires pour pousser des modifications vers le dépôt sur GitHub. GitHub gère les droits de modification à partir de jeux de clés cryptographiques générés par un utilisateur pour garantir son identité. Linux dispose d'une commande permettant de générer une clé de chiffrement. Celle-ci vous permettra de confirmer votre identité au site GitHub. Exécutez tout d'abord la commande suivante, **en acceptant le chemin par défaut pour les fichiers générés (tapez ENTRÉE)**, et en choisissant un mot de passe simple pour la clé SSH :
 
 ```bash
 ssh-keygen -t ed25519 -C "prenom.nom@etudiant.univ-rennes.fr"
@@ -154,7 +155,7 @@ Vous êtes maintenant en mesure de développer dans l'environnement de la machin
 
 ```bash
 cd ~
-git clone git@github.com:[NOM UTILISATEUR]/PowerGridStudent.git
+git clone git@github.com:MonPseudoGitHub/PowerGridStudent.git
 cd PowerGridStudent
 ```
 La première commande déplace votre terminal vers votre dossier personnel, où vous avez les droits d'écriture, la deuxième clone le projet dans ce dossier et la troisième place le terminal dans le dossier du projet.
@@ -166,23 +167,7 @@ git config --global user.name "MonNom"
 git config --global user.email "prenom.nom@univ-rennes.fr"
 ```
 
-<a name="config-vs" />
-
-### Configuration de VSCode pour le développement Python dans WSL
-
-À l'intérieur du terminal de la machine virtuelle, vous pouvez taper la commande suivante pour ouvrir le projet dans Visual Studio Code :
-
-```bash
-code .
-```
-
-> Vous devriez voir apparaître un message vous indiquant le téléchargement de vscode-server sur la machine virtuelle. Si un message d'erreur apparaît à la place, assurez-vous que vous avez bien suivi les [instructions](#install-vs) d'installation de Visual Studio Code, puis redémarrez le terminal et la machine virtuelle.
-
-Ouvrez l'un des fichiers Python du projet dans VSCode. Un message devrait apparaître, vous invitant à installer l'extension Python dans WSL. Faites cette installation.
-
-> Dans le terminal de Visual Studio Code, si vous travaillez sur une machine de l'université, il est possible que vous soyez connecté en tant que `root` lorsque vous ouvrez votre projet. Si c'est le cas, changez d'utilisateur en utilisant la commande `su -- [NOM UTILISATEUR]`.
-
-Dans le terminal de la machine virtuelle, vous devez maintenant créer un environnement Python, dans lequel seront installés les paquets dont dépend votre projet. Exécutez les commandes suivantes :
+Finalement, le développement d'un projet Python nécessite la création d'un environnement virtuel Python contenant les bibliothèques dont dépend le projet. Vous pouvez créer un envrionnement virtuel Python, l'activer puis y installer les dépendences, en exécutant les commandes suivantes :
 
 ```bash
 python3 -m venv venv
@@ -190,28 +175,113 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Dans l'interface de Visual Studio Code, un message a du apparaître pour signaler la détection de la création d'un nouvel environnement Python. Acceptez la sélection de cet environnement pour le projet. Si aucun message n'apparaît, vous pouvez sélectionner l'environnement python `venv` en cliquant sur la mention concernant votre version de python, en bas à droite de l'interface quand un fichier `.py` est ouvert dans l'éditeur.
+<a name="config-vs" />
 
-Vérifiez que vous êtes en mesure d'exécuter le projet (script `PowerGrid.py`). Si vous n'avez pas directement une flèche verte pour l'exécution en haut à droite de l'interface de VSCode, vous pouvez exécuter vos scripts en ligne de commande dans le terminal de l'éditeur. L'activation d'un environnement python dans le terminal se fait grâce à la commande :
+### Configuration de VSCode pour le développement Python dans WSL
+
+À l'intérieur du terminal de la machine virtuelle, dans le répertoire du projet, vous pouvez taper la commande suivante pour ouvrir le projet dans Visual Studio Code :
+
+```bash
+code .
+```
+
+> Vous devriez voir apparaître un message vous indiquant le téléchargement de vscode-server sur la machine virtuelle. Si un message d'erreur apparaît à la place, qui contient `Exec format error`, exécutez les commandes suivantes :
+> ```bash
+> sudo sh -c 'echo :WSLInterop:M::MZ::/init:PF > /usr/lib/binfmt.d/WSLInterop.conf'
+> sudo systemctl restart systemd-binfmt
+> ```
+> S'il s'agit d'une erreur différente, assurez-vous que vous avez bien suivi les [instructions](#install-vs) d'installation de Visual Studio Code, puis redémarrez le terminal et la machine virtuelle.
+
+Ouvrez l'un des fichiers Python du projet dans VSCode. Un message devrait apparaître, vous invitant à installer l'extension Python dans WSL. Faites cette installation (si le message n'apparaît pas, vous pouvez trouver l'extension Python à installer dans l'explorateur d'extensions de VSCode.
+
+> Dans le terminal de Visual Studio Code, si vous travaillez sur une machine de l'université, il est possible que vous soyez connecté en tant que `root` lorsque vous ouvrez votre projet. Si c'est le cas, changez d'utilisateur en utilisant la commande `su -- MonNomUtilisateur`.
+
+Vérifiez que vous êtes en mesure d'exécuter le projet (script `PowerGrid.py`). Si vous n'avez pas directement un bouton en forme de flèche pour l'exécution du code en haut à droite de l'interface de VSCode, vous pouvez exécuter vos scripts en ligne de commande dans le terminal de l'éditeur. L'activation d'un environnement python dans le terminal se fait grâce à la commande :
 
 ```bash
 source venv/bin/activate
+```
+
+L'exécution du script `PowerGrid.py` dans l'invite de comamnde se fait alors via la commande :
+
+```bash
+python PowerGrid.py
 ```
 
 <a name="export-wsl" />
 
 ### Export de votre machine virtuelle pour réutilisation ultérieure
 
-#### Quitter ou relancer une machine virtuelle
+> Note : Cette section est principalement à destination des étudiants ayant choisi de développer en utilisant les machines de l'université. Pour les autres étudiants, les machines virtuelles WSL sont conservées en l'état d'un allumage à l'autre de l'ordinateur, il est donc moins critique de les sauvegarder entre deux séances de TP.
 
-Depuis un terminal d'une machine virtuelle, vous pouvez quitter celle-ci en tapant la commande `exit`. Vous quitterez également la machine virtuelle si vous êtes emmené à fermer le terminal.
+Si vous souhaitez sauvegarder un état de votre machine virtuelle (par exemple, dans le cas des ordinateurs de l'université qui sont réinitialisés à chaque déconnexion), vous pouvez exporter la machine virtuelle vers un fichier au moyen d'une commande. Vous pourrez alors stocker ce fichier à un endroit sécurisé et demander à wsl de le charger lors d'une utilisation ultérieure.
 
-Pour se reconnecter à une machine virtuelle, il faut connaître le nom de la ditribution de celle-ci (par exemple `Debian` dans le cas de la machine virtuelle décrite ci-dessous comme notre environnement de développement), ainsi que le nom d'utilisateur que vous aviez choisi pour cette machine virtuelle.
-
-Par exemple, pour me connecter à une machine virtuelle `Debian` avec l'utilisateur `louis`, j'exécuterai alors la commande :
+Pour exécuter les commandes suivantes, vous devez disposer d'une invite de commande Windows située à l'extérieur de vos machines virtuelles WSL. Vous pouvez donc commencer par quitter la machine virtuelle dans laquelle vous étieez en train de travailler avec la commande :
 
 ```bash
-wsl --distribution Debian --user louis
+exit
+```
+
+Pour commencer, demandez à wsl de lister les machines virtuelles existant sur votre système :
+
+```bash
+wsl --list
+```
+
+Une fois votre machine virtuelle identifiée parmi les noms existants, exécutez la commande suivante dans une invite de commande Windows, en remplaçant `Ubuntu` par le nom de votre machine virtuelle à sauvegarder, et `ubuntu-dev` par le nom du fichier dans lequel vous voulez sauvegarder la machine virtuelle : 
+
+```bash
+wsl --export Ubuntu ubuntu-dev.tar
+```
+
+> Note : Cette commande a pour fonction de créer un fichier, elle doit donc être exécutée dans un dossier au sein duquel vous disposez des droits en écriture. Utilisez la commande `cd chemin/vers/un/dossier` pour déplacer l'invite de commande vers un dossier dans lequel l'écriture est possible. Par exemple : `cd c:/Users/louis/Documents`.
+
+Vous devriez voir apparaître un fichier `ubuntu-dev.tar` faisant quelques gigaoctets. Il s'agit du fichier à conserver dans un endroit sûr.
+
+> Si vous travaillez sur les machines de l'université, placez ce fichier sur le réseau (lecteur **H:**) ou sur un emplacement cloud personnel. Un fichier laissé sur le lecteur **C:** ne sera pas forcément acessible lors de votre prochaine connexion.
+
+<a name="reuse-wsl" />
+
+### Réutilisation d'une machine virtuelle
+
+#### Import d'une machine virtuelle depuis un fichier de sauvegarde
+
+Afin de charger votre machine virtuelle sauvegardée, vous pouvez utiliser la commande suivante :
+
+```bash
+wsl --import Ubuntu-dev UbuntuDev ubuntu-dev.tar
+```
+
+> Si vous travaillez sur les machines de l'université, exécutez cette commande sur le lecteur local **C:** (par exemple dans vos documents), dans un répertoire où vous aurez au préalable placé le fichier de sauvegarde `.tar`. Il vous manquera des droits si vous cherchez à réaliser cette opération drectement sur le réseau.
+
+Le premier paramètre de cette commande est le nom que portera la distribution dans WSL une fois importée. Le deuxième paramètre est le chemin vers le dossier dans lequel la machine virtuelle importée sera stockée, et le dernier argument est le chemin vers le fichier `.tar` dans lequel la VM a été exportée par le passé.
+
+> Note : Encore une fois, cette commande doit être exécutée dans un dossier au sein duquel vous disposez des droits en écriture.
+
+Afin de vérifier que votre nouvelle machine virtuelle importée est bien disponible dans WSL, vous pouvez exécuter la commande :
+
+```bash
+wsl --list
+```
+
+Votre machine virtuelle devrait se trouver dans la liste.
+
+#### Connexion à une machine virtuelle importée
+
+Pour commencer, demandez à wsl de lister les machines virtuelles existant sur votre système :
+
+```bash
+wsl --list
+```
+
+La machine virtuelle que vous souhaitez lancer doit se trouver dans la liste qui est retournée par cette commande.
+
+Pour se connecter à une machine virtuelle, il faut connaître le nom de celle-ci (par exemple `UbuntuDev` dans le cas de la machine virtuelle décrite ci-dessus comme notre environnement de développement), ainsi que le nom d'utilisateur que vous aviez choisi pour cette machine virtuelle.
+
+Par exemple, pour me connecter à une machine virtuelle `UbuntuDev` avec l'utilisateur `louis`, j'exécuterai alors la commande :
+
+```bash
+wsl --distribution UbuntuDev --user louis
 ```
 
 Pour retourner à l'intérieur de votre espace personnel sur la VM, vous pouvez finalement exécuter la commande :
@@ -220,51 +290,26 @@ Pour retourner à l'intérieur de votre espace personnel sur la VM, vous pouvez 
 cd ~
 ```
 
-#### Export d'une machine virtuelle pour réutilisation ultérieure
-
-> Note : Cette section est principalement à destination des étudiants ayant choisi de développer en utilisant les machines de l'université, les autres étudiants peuvent ignorer ces instructions.
-
-Si vous souhaitez sauvegarder un état de votre machine virtuelle (par exemple, dans le cas des ordinateurs de l'université qui sont réinitialisés à chaque déconnexion), vous pouvez exporter la machine virtuelle vers un fichier au moyen d'une commande. Vous pourrez alors stocker ce fichier à un endroit sécurisé et demander à wsl de le charger lors d'une utilisation ultérieure.
-
-Une fois votre machine virtuelle éteinte, exécutez la commande suivante dans une invite de commande Windows : 
+Enfin, afin de rejoindre l'emplacement de votre dossier projet, qui devrait se trouver dans votre espace personnel, utilisez la commande :
 
 ```bash
-wsl --export Debian debian-dev.tar
+cd PowerGridStudent
 ```
 
-Vous devriez voir apparaître un fichier `debian-dev.tar` faisant quelques gigaoctets. Il s'agit du fichier à conserver dans un endroit sûr.
-
-> Si vous travaillez sur les machines de l'université, placez ce fichier sur le réseau (lecteur **H:**) ou sur un emplacement cloud personnel. Un fichier laissé sur le lecteur **C:** ne sera pas forcément acessible lors de votre prochaine connexion.
-
-Afin de charger votre machine virtuelle sauvegardée, lors d'une utilisation ultérieure, vous pourrez utiliser la commande suivante :
+Vous pourrez alors reprendre le développement de votre projet en activant l'environnement virtuel Python, puis en ouvrant votre environnement de développement, avec les commandes suivantes :
 
 ```bash
-wsl --import Debian-dev DebianDev debian-dev.tar
+source venv/bin/activate
+code .
 ```
 
-> Si vous travaillez sur les machines de l'université, exécutez cette commande sur le lecteur local **C:** (par exemple dans vos documents). Il vous manquera des droits si vous cherchez à réaliser cette opération drectement sur le réseau.
-
-Le premier paramètre de cette commande est le nom que portera la distribution dans WSL une fois importée. Le deuxième paramètre est le chemin vers le dossier dans lequel la machine virtuelle sera stockée, et le dernier argument est le nom du fichier `.tar` dans lequel la VM a été exportée par le passé.
-
-Pour lancer la machine virtuelle importée, il vous suffira alors de taper la commande :
-
-```bash
-wsl --distribution Debian-dev --user [NOM UTILISATEUR]
-```
-
-Puis tapez la commande :
-
-```bash
-cd ~
-```
-
-Pour rejoindre votre dossier personnel sur la VM (où se trouve votre projet).
+> Note : Si VSCode ne semble pas connecté à la machine virtuelle au lancement, vérifier que l'extension WSL est bien installée dans le navigateur d'extensions, et installez-là au besoin.
 
 <a name="jenkins" />
 
 ## Mise en place du serveur CI
 
-Vous allez mettre en place un serveur d'automatisation des tests de votre projet avec Jenkins. Ce serveur peut être mis en place une fois par l'un des membres du groupe. En situation réelle, l'intérêt d'un tel serveur est de fonctionner jour et nuit et de scruter les changements apportés au projet en réalisant continuellement des tests. Dans votre cas, vous pouvez vous contenter dans un premier temps de mettre en place le serveur une première fois pour apprendre à le configurer.
+Vous allez mettre en place un serveur d'automatisation des tests de votre projet avec Jenkins. Ce serveur peut être mis en place une fois par un seul des membres du groupe. En situation réelle, l'intérêt d'un tel serveur est de fonctionner jour et nuit et de scruter les changements apportés au projet en réalisant continuellement des tests. Dans votre cas, vous pouvez vous contenter dans un premier temps de mettre en place le serveur une première fois pour apprendre à le configurer.
 
 **Ces opérations peuvent également être réalisées sur les machines de l'université, ou sur vos ordinateurs personnels selon votre choix. En cas d'utilisation de votre ordinateur, veillez à avoir activé le service WSL dans Windows.**
 
@@ -324,7 +369,7 @@ su - jenkins
 
 L'invite de commande devrait montrer un changement d'utilisateur.
 
-Vous devez maintenant créer des identifiants SSH à l'utilisateur `jenkins`, afin que celui-ci puisse s'identifier auprès de GitHub pour collecter les modifications apportées à notre dépôt de code. Générez une nouvelle paire de clés SSH pour l'utilisateur `jenkins` avec la commande suivante :
+Vous devez maintenant créer des identifiants SSH à l'utilisateur `jenkins`, afin que celui-ci puisse s'identifier auprès de GitHub pour collecter les modifications apportées à notre dépôt de code. Générez une nouvelle paire de clés SSH pour l'utilisateur `jenkins` avec la commande suivante (**encore une fois, acceptez l'emplacement par défaut pour la clé en appuyant sur ENTRÉE**) :
 
 ```bash
 ssh-keygen -t ed25519 -C "prenom.nom@etudiant.univ-rennes.fr"
@@ -347,7 +392,7 @@ Sur l'interface web de GitHub, naviguez jusqu'à la page de votre projet PowerGr
 Enfin, vous devez ajouter le dépôt GitHub aux serveurs SSH connus par l'utilisateur `jenkins`. Pour ce faire, exécutez la commande suivante, et validez en tapant `yes`:
 
 ```bash
-git ls-remote -h -- git@github.com:[NOM UTILISATEUR GITHUB]/PowerGridStudent.git ~/.ssh/id_ed25519.pub
+git ls-remote -h -- git@github.com:MonPseudoGitHub/PowerGridStudent.git ~/.ssh/id_ed25519.pub
 ```
 
 Pensez à remplacer le nom d'utilisateur GitHub dans la commande par celui du membre du groupe ayant réalisé le fork du dépôt.
@@ -380,13 +425,21 @@ Il vous est demandé dans l'interface de déverrouiller Jenkins pour la premièr
 sudo cat /var/lib/jenkins/secrets/intialAdminPassword
 ```
 
-> Si cette commande ne fonctionne pas, vous pouvez également trouver le mot de passe quelque part dans la sortie de jenkins obtenue en exécutant la commande `journalctl -u jenkins`.
+> Si cette commande ne fonctionne pas, vous pouvez également trouver le mot de passe quelque part dans la sortie de jenkins obtenue en exécutant la commande `journalctl -u jenkins`, et en descendant dans l'historique des messages jusqu'à trouver le mot de passe.
 
 Copiez ce mot de passe dans le champ correspondant dans votre navigateur web, et validez. Choisissez d'installer les plugins recommandés et attendez la fin de leur configuration.
 
 Vous pouvez maintenant créer un utilisateur administrateur pour Jenkins. Cette fois encore, choisissez des identifiants courts et faciles à retenir. Une fois les pages suivantes validées, vous devez parvenir au tableau de bord de Jenkins.
 
 **Vous disposez maintenant d'une installation viable de Jenkins au sein d'une machine virtuelle, il vous est conseillé de penser à réaliser des sauvegardes de celle-ci en suivant les instructions dispensées dans la [section correspondante](#export-wsl)**
+
+Les commandes d'export de votre machine virtuelle pourront ressembler à :
+
+```bash
+wsl --export Ubuntu-22.04 ubuntu-jenkins.tar
+```
+
+Le fichier ubuntu-jenkins.tar peut être sauvegardé et importé ultérieurement.
 
 <a name="jenkins-pipeline" />
 
@@ -446,7 +499,7 @@ Enfin, la dernière section vous permet de définir le Pipeline à exécuter. La
 Dans le champ **Repository url**, entrez l'url de votre dépôt sur GitHub, qui devrait ressembler à :
 
 ```
-git@github.com:[NOM UTILISATEUR GITHUB]/PowerGridStudent.git
+git@github.com:MonPseudoGitHub/PowerGridStudent.git
 ```
 
 Il vous faut ensuite choisir une valeur pour le champ **Credentials**. Il s'agit du champ qui doit contenir des identifiants permettant à Jenkins d'accéder en lecture à votre dépôt sur GitHub, afin de pouvoir en télécharger et tester le code. Dans le menu déroulant, il n'y a pas encore de valeur disponible à la sélection. Il vous faut ajouter un nouveau jeu d'identifiants en cliquant sur le bouton **Ajouter**, en dessous du menu déroulant. Cliquez sur le choix **Jenkins** et vous parvenez à une interface pour renseigner vos identifiants :
@@ -468,7 +521,13 @@ De retour à votre tableau de bord, cherchez à lancer un build de votre Pipelin
  
 ## Appropriation du projet
 
-Vous êtes désormais en charge du développement du projet PowerGrid, vous devez organiser votre groupe afin de remplir les différents objectifs définis lors de la spécification
+Vous êtes désormais en charge du développement du projet PowerGrid, vous devez organiser votre groupe afin de remplir les différents objectifs définis lors de la spécification.
+
+Pour commencer, chacun des membres du groupe peut se connecter à con environnement de travail en suivant les instructions décrites dans la [section correspondante](#reuse-wsl).
+
+Dans l'environnement VSCode, l'invite de commande située en bas de l'interface permettra d'entrer les commandes `git` pour la gestion des versions. Quand l'un des membres du groupe aura modifié le code du projet et souhaitera le valider, il créera une nouvelle validation (*commit*), et la poussera (*push*) vers le serveur github (*origin*). Alternativement, les boutons de l'interface de VSCode permettent de réaliser les mêmes opérations de manière plus conviviale.
+
+Il vous est recommandé de créer chacun une branche (`git branch`) à votre nom, sur laquelle vous réaliserez vos commits et que vous pourrez pousser vers le dépôt GitHub.
 
 <a name="projet-desc" />
 
